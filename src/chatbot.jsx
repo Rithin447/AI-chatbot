@@ -1,5 +1,5 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([]);
@@ -7,43 +7,71 @@ const Chatbot = () => {
   const bottomRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const sendMessage = async () => {
+    if (!input.trim()) return;
 
- const sendMessage = async () => {
-  if (!input.trim()) return;
+    const userMsg = { role: 'user', content: input };
+    setMessages(prev => [...prev, userMsg]);
+    setInput('');
+    setIsLoading(true);
 
-  const userMsg = { role: 'user', content: input };
-  setMessages(prev => [...prev, userMsg]);
-  setInput('');  
-  setIsLoading(true);  // 
+    try {
+      const res = await fetch('http://localhost:11434/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'llama3.2',
+          prompt: input,
+          stream: true,
+        }),
+      });
 
-  try {
-    const res = await axios.post('http://localhost:11434/api/generate', {
-      model: "llama3.2",
-      prompt: input,
-      stream: false
-    });
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let botText = '';
 
-    const botMsg = { role: 'assistant', content: res.data.response };
-    setMessages(prev => [...prev, botMsg]);
-  } catch (error) {
-    console.error("LLM request failed:", error);
-    setMessages(prev => [
-      ...prev,
-      { role: 'error', content: 'LLM error. Check console for details.' }
-    ]);
-  }
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value);
 
-  setIsLoading(false);  // 
-  setInput('');
-};  
+        chunk.split('\n').forEach(line => {
+          if (line.trim()) {
+            try {
+              const json = JSON.parse(line);
+              if (json.response) {
+                botText += json.response;
+                setMessages(prev => [
+                  ...prev.filter(m => m.role !== 'assistant'),
+                  { role: 'assistant', content: botText },
+                ]);
+              }
+            } catch (e) {
+              console.error('Stream parse error:', e);
+            }
+          }
+        });
+      }
 
-  // Auto-scroll to the latest message
+    } catch (error) {
+      console.error("LLM stream failed:", error);
+      setMessages(prev => [
+        ...prev,
+        { role: 'error', content: 'LLM error. Check console for details.' }
+      ]);
+    }
+
+    setIsLoading(false);
+  };
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const CHATBOX_HEIGHT = '90vh';
-  const HEADER_FOOTER_HEIGHT = 140; 
+  const HEADER_FOOTER_HEIGHT = 140;
 
   return (
     <div className="card shadow-lg w-100" style={{ height: CHATBOX_HEIGHT }}>
@@ -85,8 +113,8 @@ const Chatbot = () => {
         ))}
 
         {isLoading && (
-  <div className="text-muted fst-italic">Bot is typing...</div>
-)}
+          <div className="text-muted fst-italic">Bot is typing...</div>
+        )}
         <div ref={bottomRef}></div>
       </div>
 
