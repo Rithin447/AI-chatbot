@@ -1,13 +1,14 @@
+
 # AI Chatbot – React Frontend with Local LLM Integration
 
-This is a simple AI Chatbot web application built using **ReactJS**, connected to a **local Large Language Model (LLM)** using **Ollama** and **llama3**. The chatbot allows users to have real-time interactions with an AI assistant, without requiring cloud API access.
+This is a simple AI Chatbot web application built using **ReactJS**, connected to a **local Large Language Model (LLM)** using **Ollama** and **LLaMA 3**. The chatbot allows users to have real-time interactions with an AI assistant, without requiring cloud API access.
 
 ## Tech Stack
 
 - **React.js** – Frontend interface
 - **Bootstrap 5** – Styling and layout
 - **Ollama** – Local LLM model runner
-- **llama3 (Meta AI)** – Language model used
+- **LLaMA 3 (Meta AI)** – Language model used (under non-commercial license)
 - **Node.js & npm** – Development server and dependency management
 
 ## Prerequisites & Software Installation
@@ -37,7 +38,7 @@ To clone the repository and manage version control.
 
 ### 3. [Ollama](https://ollama.com/download)
 
-Ollama is used to run local LLMs (like llama3) directly on your machine.
+Ollama is used to run local LLMs (like LLaMA 3) directly on your machine.
 
 - Download and install Ollama.
 - After installation, run the following in terminal:
@@ -80,11 +81,11 @@ This will launch the development server and open the chatbot in your default bro
 
 ## Features
 
-- Centered and styled chatbot interface with Bootstrap
-- Real-time user input with bot response handling
-- Loading indicator while the bot is generating responses
-- Clean input and auto-scrolling chat window
-- Easy integration with Ollama's local LLM
+- Styled chatbot interface with Bootstrap
+- Real-time user input with bot response streaming
+- "Bot is typing..." loading indicator
+- Auto-scrolling conversation window
+- Uses `fetch()` to stream responses from Ollama line-by-line for faster perception
 
 ## Folder Structure
 
@@ -102,6 +103,16 @@ This will launch the development server and open the chatbot in your default bro
 
 ## Notes
 
-- Ensure you have enough system memory (8GB+) to run the llama3 model locally.
+- Ensure you have enough system memory (8GB+ recommended) to run the LLaMA 3 model locally.
 - The model runs completely offline after initial setup – no cloud APIs required.
 - You can modify `App.jsx` and `ChatBox.jsx` to customize prompts or extend features.
+
+---
+
+## License & Disclaimer
+
+This project integrates Meta's **LLaMA 3** model via the **Ollama** runtime for local, non-commercial use only. The model is used under the terms of Meta’s [license agreement](https://ai.meta.com/resources/models-and-libraries/llama-downloads/).
+
+All React frontend and integration code in this repository is open source under the MIT license.
+
+> ⚠This project is for educational and personal use only and is **not intended for public or commercial deployment**.
